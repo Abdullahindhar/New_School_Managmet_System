@@ -109,34 +109,49 @@ if st.session_state.page == "dashboard":
     else:
         st.info("No fee defaulters!")
 
+# ---------------- ADD STUDENT (FLEX LAYOUT) ----------------
 elif st.session_state.page == "add_student":
     st.subheader("Add New Student")
-    name = st.text_input("Student Name")
-    class_name = st.text_input("Class")
-    attendance = st.number_input("Attendance (%)", 0, 100)
-    last_paid = st.number_input("Last Paid Fee")
-    total_fee = st.number_input("Total Fee")
-    fine = st.number_input("Fine")
+
+    # Row 1
+    col1, col2, col3 = st.columns(3)
+    name = col1.text_input("Student Name")
+    class_name = col2.text_input("Class")
+    attendance = col3.number_input("Attendance (%)", 0, 100)
+
+    # Row 2
+    col4, col5, col6 = st.columns(3)
+    last_paid = col4.number_input("Last Paid Fee")
+    total_fee = col5.number_input("Total Fee")
+    fine = col6.number_input("Fine")
+
     if st.button("Save Student"):
         add_student(name, class_name, attendance, last_paid, total_fee, fine)
-        st.success("Student added successfully")
+        st.success("✅ Student added successfully")
 
+# ---------------- VIEW STUDENTS ----------------
 elif st.session_state.page == "view_students":
     st.subheader("Students List")
     st.dataframe(students, use_container_width=True)
 
+# ---------------- ADD TEACHER (FLEX LAYOUT) ----------------
 elif st.session_state.page == "add_teacher":
     st.subheader("Add New Teacher")
-    name = st.text_input("Teacher Name")
-    subjects = st.text_input("Subjects")
-    if st.button("Save Teacher"):
-        add_teacher(name, subjects)
-        st.success("Teacher added successfully")
 
+    col1, col2 = st.columns(2)
+    teacher_name = col1.text_input("Teacher Name")
+    subjects = col2.text_input("Subjects (comma separated)")
+
+    if st.button("Save Teacher"):
+        add_teacher(teacher_name, subjects)
+        st.success("✅ Teacher added successfully")
+
+# ---------------- VIEW TEACHERS ----------------
 elif st.session_state.page == "view_teachers":
     st.subheader("Teachers List")
     st.dataframe(teachers, use_container_width=True)
 
+# ---------------- ANALYTICS ----------------
 elif st.session_state.page == "analytics":
     st.subheader("Analytics Overview")
     colA, colB = st.columns(2)
