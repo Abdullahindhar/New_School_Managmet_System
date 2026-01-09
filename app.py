@@ -18,16 +18,21 @@ def toggle_theme():
 # ---------------- CUSTOM CSS ----------------
 st.markdown("""
 <style>
-/* Body background */
-.stApp {
-    background: linear-gradient(to right, #e0f7fa, #fff3e0);
-}
+/* Body background for light/dark */
+body.light {background: linear-gradient(to right, #e0f7fa, #fff3e0);}
+body.dark {background: #0e1117; color:white;}
 
-/* Header buttons */
+/* Buttons */
 .button-header {
-    background-color:#1f77b4; color:white; border:none;
-    padding:10px 20px; border-radius:12px;
-    font-weight:bold; margin-right:10px; cursor:pointer;
+    background-color:#1f77b4; 
+    color:white; 
+    border:none;
+    padding:12px 25px; 
+    border-radius:12px;
+    font-weight:bold; 
+    margin-right:10px; 
+    cursor:pointer;
+    transition: 0.3s;
 }
 .button-header:hover {
     background-color:#155a8a;
@@ -58,6 +63,15 @@ footer {
 </style>
 """, unsafe_allow_html=True)
 
+# ---------------- DARK MODE TOGGLE ----------------
+st.sidebar.button("🌗 Toggle Dark/Light Mode", on_click=toggle_theme)
+dark_mode = st.session_state.theme == "dark"
+
+if dark_mode:
+    st.markdown("<style>body{background-color:#0e1117; color:white;}</style>", unsafe_allow_html=True)
+else:
+    st.markdown("<style>body{background-color:#eef3f9; color:black;}</style>", unsafe_allow_html=True)
+
 # ---------------- LOAD DATA ----------------
 students = load_csv("students.csv", ["ID","Name","Class","Attendance","LastPaid","TotalFee","Fine"])
 teachers = load_csv("teachers.csv", ["ID","Name","Subjects"])
@@ -65,25 +79,25 @@ classes = load_csv("classes.csv", ["ID","ClassName"])
 defaulters = students[students["LastPaid"]/students["TotalFee"]<0.8] if not students.empty else []
 
 # ---------------- HEADER ----------------
-st.markdown("<h1 style='text-align:center; color:#1f4e78;'>🏫 School Management System</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align:center; color:#1f4e78;'>School Management System</h1>", unsafe_allow_html=True)
 st.markdown("<p style='text-align:center;'>Smart Dashboard Overview</p><hr>", unsafe_allow_html=True)
 
-# ---------------- DASHBOARD BUTTONS ----------------
+# ---------------- DASHBOARD BUTTONS (STYLISH) ----------------
 btn1, btn2, btn3, btn4, btn5 = st.columns(5)
 
-if btn1.button("➕ Add Student", key="btn_add_student"):
+if btn1.button("Add Student", key="btn_add_student"):
     st.session_state.page = "add_student"
 
-if btn2.button("📘 View Students", key="btn_view_student"):
+if btn2.button("View Students", key="btn_view_student"):
     st.session_state.page = "view_students"
 
-if btn3.button("➕ Add Teacher", key="btn_add_teacher"):
+if btn3.button("Add Teacher", key="btn_add_teacher"):
     st.session_state.page = "add_teacher"
 
-if btn4.button("📗 View Teachers", key="btn_view_teacher"):
+if btn4.button("View Teachers", key="btn_view_teacher"):
     st.session_state.page = "view_teachers"
 
-if btn5.button("📊 Analytics", key="btn_analytics"):
+if btn5.button("Analytics", key="btn_analytics"):
     st.session_state.page = "analytics"
 
 if "page" not in st.session_state:
@@ -102,51 +116,43 @@ cards_col4.markdown(f"<div class='card' style='background-color:#d32f2f'>Fee Def
 st.markdown("<hr>", unsafe_allow_html=True)
 
 # ---------------- PAGES ----------------
-
-# DASHBOARD MAIN
 if st.session_state.page == "dashboard":
-    st.subheader("📌 Recent Fee Defaulters")
+    st.subheader("Recent Fee Defaulters")
     if not defaulters.empty:
         st.dataframe(defaulters[["ID","Name","Class","Attendance","LastPaid","TotalFee","Fine"]], use_container_width=True)
     else:
         st.info("No fee defaulters!")
 
-# ADD STUDENT
 elif st.session_state.page == "add_student":
-    st.subheader("➕ Add New Student")
+    st.subheader("Add New Student")
     name = st.text_input("Student Name")
     class_name = st.text_input("Class")
     attendance = st.number_input("Attendance (%)", 0, 100)
     last_paid = st.number_input("Last Paid Fee")
     total_fee = st.number_input("Total Fee")
     fine = st.number_input("Fine")
-
     if st.button("Save Student"):
         add_student(name, class_name, attendance, last_paid, total_fee, fine)
-        st.success("✅ Student added successfully")
+        st.success("Student added successfully")
 
-# VIEW STUDENTS
 elif st.session_state.page == "view_students":
-    st.subheader("📘 Students List")
+    st.subheader("Students List")
     st.dataframe(students, use_container_width=True)
 
-# ADD TEACHER
 elif st.session_state.page == "add_teacher":
-    st.subheader("➕ Add New Teacher")
+    st.subheader("Add New Teacher")
     name = st.text_input("Teacher Name")
     subjects = st.text_input("Subjects")
     if st.button("Save Teacher"):
         add_teacher(name, subjects)
-        st.success("✅ Teacher added successfully")
+        st.success("Teacher added successfully")
 
-# VIEW TEACHERS
 elif st.session_state.page == "view_teachers":
-    st.subheader("📗 Teachers List")
+    st.subheader("Teachers List")
     st.dataframe(teachers, use_container_width=True)
 
-# ANALYTICS
 elif st.session_state.page == "analytics":
-    st.subheader("📊 Analytics Overview")
+    st.subheader("Analytics Overview")
     colA, colB = st.columns(2)
     with colA:
         st.write("Students per Class")
@@ -155,10 +161,3 @@ elif st.session_state.page == "analytics":
         st.write("Attendance Distribution")
         st.line_chart(students["Attendance"])
 
-# ---------------- FOOTER ----------------
-st.markdown("""
-<hr>
-<footer>
-© 2026 <b>School Management System</b> | Developed by <b>Abdullah Indhar</b> 🚀
-</footer>
-""", unsafe_allow_html=True)
