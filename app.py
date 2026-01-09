@@ -8,21 +8,15 @@ st.set_page_config(
     layout="wide"
 )
 
-# ---------------- THEME ----------------
-if "theme" not in st.session_state:
-    st.session_state.theme = "light"
-
-def toggle_theme():
-    st.session_state.theme = "dark" if st.session_state.theme == "light" else "light"
-
 # ---------------- CUSTOM CSS ----------------
 st.markdown("""
 <style>
-/* Body background for light/dark */
-body.light {background: linear-gradient(to right, #e0f7fa, #fff3e0);}
-body.dark {background: #0e1117; color:white;}
+/* Gradient background */
+.stApp {
+    background: linear-gradient(to right, #74ebd5, #acb6e5);
+}
 
-/* Buttons */
+/* Header buttons */
 .button-header {
     background-color:#1f77b4; 
     color:white; 
@@ -47,7 +41,7 @@ body.dark {background: #0e1117; color:white;}
     text-align:center;
     font-weight:bold;
     margin-bottom:15px;
-    box-shadow: 2px 2px 10px rgba(0,0,0,0.2);
+    box-shadow: 2px 2px 12px rgba(0,0,0,0.3);
 }
 .card:hover {
     transform: scale(1.05);
@@ -59,18 +53,10 @@ footer {
     text-align:center;
     font-size:14px;
     padding:10px;
+    color:white;
 }
 </style>
 """, unsafe_allow_html=True)
-
-# ---------------- DARK MODE TOGGLE ----------------
-st.sidebar.button("🌗 Toggle Dark/Light Mode", on_click=toggle_theme)
-dark_mode = st.session_state.theme == "dark"
-
-if dark_mode:
-    st.markdown("<style>body{background-color:#0e1117; color:white;}</style>", unsafe_allow_html=True)
-else:
-    st.markdown("<style>body{background-color:#eef3f9; color:black;}</style>", unsafe_allow_html=True)
 
 # ---------------- LOAD DATA ----------------
 students = load_csv("students.csv", ["ID","Name","Class","Attendance","LastPaid","TotalFee","Fine"])
@@ -82,22 +68,22 @@ defaulters = students[students["LastPaid"]/students["TotalFee"]<0.8] if not stud
 st.markdown("<h1 style='text-align:center; color:#1f4e78;'>School Management System</h1>", unsafe_allow_html=True)
 st.markdown("<p style='text-align:center;'>Smart Dashboard Overview</p><hr>", unsafe_allow_html=True)
 
-# ---------------- DASHBOARD BUTTONS (STYLISH) ----------------
+# ---------------- DASHBOARD BUTTONS ----------------
 btn1, btn2, btn3, btn4, btn5 = st.columns(5)
 
-if btn1.button("Add Student", key="btn_add_student"):
+if btn1.button("Add Student"):
     st.session_state.page = "add_student"
 
-if btn2.button("View Students", key="btn_view_student"):
+if btn2.button("View Students"):
     st.session_state.page = "view_students"
 
-if btn3.button("Add Teacher", key="btn_add_teacher"):
+if btn3.button("Add Teacher"):
     st.session_state.page = "add_teacher"
 
-if btn4.button("View Teachers", key="btn_view_teacher"):
+if btn4.button("View Teachers"):
     st.session_state.page = "view_teachers"
 
-if btn5.button("Analytics", key="btn_analytics"):
+if btn5.button("Analytics"):
     st.session_state.page = "analytics"
 
 if "page" not in st.session_state:
@@ -160,4 +146,3 @@ elif st.session_state.page == "analytics":
     with colB:
         st.write("Attendance Distribution")
         st.line_chart(students["Attendance"])
-
