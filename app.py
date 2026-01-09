@@ -8,28 +8,31 @@ st.set_page_config(
     layout="wide"
 )
 
-# ---------------- THEME TOGGLE ----------------
+# ---------------- THEME ----------------
 if "theme" not in st.session_state:
     st.session_state.theme = "light"
 
 def toggle_theme():
     st.session_state.theme = "dark" if st.session_state.theme == "light" else "light"
 
-st.button("🌗 Dark / Light Mode", on_click=toggle_theme)
+st.markdown(
+    "<div style='text-align:right'>🌗 <button onclick='toggle()'>Dark / Light Mode</button></div>",
+    unsafe_allow_html=True
+)
 
 # ---------------- CUSTOM CSS ----------------
 if st.session_state.theme == "dark":
     st.markdown("""
     <style>
-        .stApp {background-color: #0e1117; color:white;}
-        table {color:white;}
+    .stApp {background-color: #0e1117; color:white;}
+    table {color:white;}
     </style>
     """, unsafe_allow_html=True)
 else:
     st.markdown("""
     <style>
-        .stApp {background-color: #eef3f9; color:black;}
-        table {color:black;}
+    .stApp {background-color: #eef3f9; color:black;}
+    table {color:black;}
     </style>
     """, unsafe_allow_html=True)
 
@@ -46,18 +49,18 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ---------------- DASHBOARD CARDS ----------------
-col1, col2, col3, col4 = st.columns(4)
+cards_col1, cards_col2, cards_col3, cards_col4 = st.columns(4)
 
-def card(title, value, color="#1f77b4"):
+def small_card(title, value, color="#1f77b4"):
     st.markdown(f"""
     <div style='
-        background-color:{color}; 
-        padding:20px; 
-        border-radius:16px; 
+        background-color:{color};
+        padding:15px;
+        border-radius:12px;
         text-align:center;
         color:white;
         font-weight:bold;
-        font-size:18px;
+        font-size:16px;
         margin-bottom:10px;
     '>
         <h4>{title}</h4>
@@ -65,30 +68,31 @@ def card(title, value, color="#1f77b4"):
     </div>
     """, unsafe_allow_html=True)
 
-card("Total Students", len(students), "#1f77b4")
-card("Total Teachers", len(teachers), "#2ca02c")
-card("Total Classes", len(classes), "#ff7f0e")
 defaulters = students[students["LastPaid"]/students["TotalFee"]<0.8] if not students.empty else []
-card("Fee Defaulters", len(defaulters), "#d32f2f")
+
+small_card("Total Students", len(students), "#1f77b4")
+small_card("Total Teachers", len(teachers), "#2ca02c")
+small_card("Total Classes", len(classes), "#ff7f0e")
+small_card("Fee Defaulters", len(defaulters), "#d32f2f")
 
 st.markdown("<br>", unsafe_allow_html=True)
 
-# ---------------- DASHBOARD BUTTONS ----------------
-b1, b2, b3, b4, b5 = st.columns(5)
+# ---------------- DASHBOARD BUTTONS TOP ----------------
+btn1, btn2, btn3, btn4, btn5 = st.columns(5)
 
-if b1.button("➕ Add Student"):
+if btn1.button("➕ Add Student"):
     st.session_state.page = "add_student"
 
-if b2.button("📘 View Students"):
+if btn2.button("📘 View Students"):
     st.session_state.page = "view_students"
 
-if b3.button("➕ Add Teacher"):
+if btn3.button("➕ Add Teacher"):
     st.session_state.page = "add_teacher"
 
-if b4.button("📗 View Teachers"):
+if btn4.button("📗 View Teachers"):
     st.session_state.page = "view_teachers"
 
-if b5.button("📊 Analytics"):
+if btn5.button("📊 Analytics"):
     st.session_state.page = "analytics"
 
 if "page" not in st.session_state:
@@ -147,7 +151,6 @@ elif st.session_state.page == "analytics":
     with colA:
         st.write("Students per Class")
         st.bar_chart(students["Class"].value_counts())
-
     with colB:
         st.write("Attendance Distribution")
         st.line_chart(students["Attendance"])
