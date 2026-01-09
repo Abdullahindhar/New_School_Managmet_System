@@ -15,94 +15,95 @@ if "theme" not in st.session_state:
 def toggle_theme():
     st.session_state.theme = "dark" if st.session_state.theme == "light" else "light"
 
-st.markdown(
-    "<div style='text-align:right'>🌗 <button onclick='toggle()'>Dark / Light Mode</button></div>",
-    unsafe_allow_html=True
-)
-
 # ---------------- CUSTOM CSS ----------------
-if st.session_state.theme == "dark":
-    st.markdown("""
-    <style>
-    .stApp {background-color: #0e1117; color:white;}
-    table {color:white;}
-    </style>
-    """, unsafe_allow_html=True)
-else:
-    st.markdown("""
-    <style>
-    .stApp {background-color: #eef3f9; color:black;}
-    table {color:black;}
-    </style>
-    """, unsafe_allow_html=True)
+st.markdown("""
+<style>
+/* Body background */
+.stApp {
+    background: linear-gradient(to right, #e0f7fa, #fff3e0);
+}
+
+/* Header buttons */
+.button-header {
+    background-color:#1f77b4; color:white; border:none;
+    padding:10px 20px; border-radius:12px;
+    font-weight:bold; margin-right:10px; cursor:pointer;
+}
+.button-header:hover {
+    background-color:#155a8a;
+}
+
+/* Cards */
+.card {
+    background-color:#2ca02c;
+    color:white;
+    padding:15px;
+    border-radius:15px;
+    text-align:center;
+    font-weight:bold;
+    margin-bottom:15px;
+    box-shadow: 2px 2px 10px rgba(0,0,0,0.2);
+}
+.card:hover {
+    transform: scale(1.05);
+    transition: 0.3s;
+}
+
+/* Footer */
+footer {
+    text-align:center;
+    font-size:14px;
+    padding:10px;
+}
+</style>
+""", unsafe_allow_html=True)
 
 # ---------------- LOAD DATA ----------------
 students = load_csv("students.csv", ["ID","Name","Class","Attendance","LastPaid","TotalFee","Fine"])
 teachers = load_csv("teachers.csv", ["ID","Name","Subjects"])
 classes = load_csv("classes.csv", ["ID","ClassName"])
-
-# ---------------- HEADER ----------------
-st.markdown("""
-<h1 style='text-align:center; color:#1f4e78;'>🏫 School Management System</h1>
-<p style='text-align:center;'>Smart Dashboard Overview</p>
-<hr>
-""", unsafe_allow_html=True)
-
-# ---------------- DASHBOARD CARDS ----------------
-cards_col1, cards_col2, cards_col3, cards_col4 = st.columns(4)
-
-def small_card(title, value, color="#1f77b4"):
-    st.markdown(f"""
-    <div style='
-        background-color:{color};
-        padding:15px;
-        border-radius:12px;
-        text-align:center;
-        color:white;
-        font-weight:bold;
-        font-size:16px;
-        margin-bottom:10px;
-    '>
-        <h4>{title}</h4>
-        <h2>{value}</h2>
-    </div>
-    """, unsafe_allow_html=True)
-
 defaulters = students[students["LastPaid"]/students["TotalFee"]<0.8] if not students.empty else []
 
-small_card("Total Students", len(students), "#1f77b4")
-small_card("Total Teachers", len(teachers), "#2ca02c")
-small_card("Total Classes", len(classes), "#ff7f0e")
-small_card("Fee Defaulters", len(defaulters), "#d32f2f")
+# ---------------- HEADER ----------------
+st.markdown("<h1 style='text-align:center; color:#1f4e78;'>🏫 School Management System</h1>", unsafe_allow_html=True)
+st.markdown("<p style='text-align:center;'>Smart Dashboard Overview</p><hr>", unsafe_allow_html=True)
 
-st.markdown("<br>", unsafe_allow_html=True)
-
-# ---------------- DASHBOARD BUTTONS TOP ----------------
+# ---------------- DASHBOARD BUTTONS ----------------
 btn1, btn2, btn3, btn4, btn5 = st.columns(5)
 
-if btn1.button("➕ Add Student"):
+if btn1.button("➕ Add Student", key="btn_add_student"):
     st.session_state.page = "add_student"
 
-if btn2.button("📘 View Students"):
+if btn2.button("📘 View Students", key="btn_view_student"):
     st.session_state.page = "view_students"
 
-if btn3.button("➕ Add Teacher"):
+if btn3.button("➕ Add Teacher", key="btn_add_teacher"):
     st.session_state.page = "add_teacher"
 
-if btn4.button("📗 View Teachers"):
+if btn4.button("📗 View Teachers", key="btn_view_teacher"):
     st.session_state.page = "view_teachers"
 
-if btn5.button("📊 Analytics"):
+if btn5.button("📊 Analytics", key="btn_analytics"):
     st.session_state.page = "analytics"
 
 if "page" not in st.session_state:
     st.session_state.page = "dashboard"
 
+st.markdown("<br>", unsafe_allow_html=True)
+
+# ---------------- DASHBOARD CARDS ----------------
+cards_col1, cards_col2, cards_col3, cards_col4 = st.columns(4)
+
+cards_col1.markdown(f"<div class='card'>Total Students<br><h2>{len(students)}</h2></div>", unsafe_allow_html=True)
+cards_col2.markdown(f"<div class='card' style='background-color:#ff7f0e'>Total Teachers<br><h2>{len(teachers)}</h2></div>", unsafe_allow_html=True)
+cards_col3.markdown(f"<div class='card' style='background-color:#1f77b4'>Total Classes<br><h2>{len(classes)}</h2></div>", unsafe_allow_html=True)
+cards_col4.markdown(f"<div class='card' style='background-color:#d32f2f'>Fee Defaulters<br><h2>{len(defaulters)}</h2></div>", unsafe_allow_html=True)
+
 st.markdown("<hr>", unsafe_allow_html=True)
 
 # ---------------- PAGES ----------------
 
-# ---------- DASHBOARD ----------
+# DASHBOARD MAIN
 if st.session_state.page == "dashboard":
     st.subheader("📌 Recent Fee Defaulters")
     if not defaulters.empty:
@@ -110,7 +111,7 @@ if st.session_state.page == "dashboard":
     else:
         st.info("No fee defaulters!")
 
-# ---------- ADD STUDENT ----------
+# ADD STUDENT
 elif st.session_state.page == "add_student":
     st.subheader("➕ Add New Student")
     name = st.text_input("Student Name")
@@ -124,12 +125,12 @@ elif st.session_state.page == "add_student":
         add_student(name, class_name, attendance, last_paid, total_fee, fine)
         st.success("✅ Student added successfully")
 
-# ---------- VIEW STUDENTS ----------
+# VIEW STUDENTS
 elif st.session_state.page == "view_students":
     st.subheader("📘 Students List")
     st.dataframe(students, use_container_width=True)
 
-# ---------- ADD TEACHER ----------
+# ADD TEACHER
 elif st.session_state.page == "add_teacher":
     st.subheader("➕ Add New Teacher")
     name = st.text_input("Teacher Name")
@@ -138,15 +139,14 @@ elif st.session_state.page == "add_teacher":
         add_teacher(name, subjects)
         st.success("✅ Teacher added successfully")
 
-# ---------- VIEW TEACHERS ----------
+# VIEW TEACHERS
 elif st.session_state.page == "view_teachers":
     st.subheader("📗 Teachers List")
     st.dataframe(teachers, use_container_width=True)
 
-# ---------- ANALYTICS ----------
+# ANALYTICS
 elif st.session_state.page == "analytics":
     st.subheader("📊 Analytics Overview")
-
     colA, colB = st.columns(2)
     with colA:
         st.write("Students per Class")
@@ -158,7 +158,7 @@ elif st.session_state.page == "analytics":
 # ---------------- FOOTER ----------------
 st.markdown("""
 <hr>
-<div style="text-align:center; padding:10px; font-size:14px;">
+<footer>
 © 2026 <b>School Management System</b> | Developed by <b>Abdullah Indhar</b> 🚀
-</div>
+</footer>
 """, unsafe_allow_html=True)
